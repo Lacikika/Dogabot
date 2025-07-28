@@ -1,13 +1,36 @@
-const mongoose = require('mongoose');
+const { readDb, writeDb } = require('../database');
 
-const GiveawaySchema = new mongoose.Schema({
-    messageId: { type: String, required: true },
-    channelId: { type: String, required: true },
-    guildId: { type: String, required: true },
-    prize: { type: String, required: true },
-    winners: { type: Number, required: true },
-    endAt: { type: Date, required: true },
-    ended: { type: Boolean, default: false },
-});
+function getGiveaways() {
+    const db = readDb();
+    if (!db.giveaways) {
+        db.giveaways = [];
+    }
+    return db.giveaways;
+}
 
-module.exports = mongoose.model('Giveaway', GiveawaySchema);
+function addGiveaway(giveaway) {
+    const db = readDb();
+    if (!db.giveaways) {
+        db.giveaways = [];
+    }
+    db.giveaways.push(giveaway);
+    writeDb(db);
+}
+
+function updateGiveaway(messageId, data) {
+    const db = readDb();
+    if (!db.giveaways) {
+        db.giveaways = [];
+    }
+    const index = db.giveaways.findIndex(g => g.messageId === messageId);
+    if (index !== -1) {
+        db.giveaways[index] = { ...db.giveaways[index], ...data };
+        writeDb(db);
+    }
+}
+
+module.exports = {
+    getGiveaways,
+    addGiveaway,
+    updateGiveaway,
+};

@@ -1,10 +1,28 @@
-const mongoose = require('mongoose');
+const { readDb, writeDb } = require('../database');
 
-const LeaveSchema = new mongoose.Schema({
-    guildId: { type: String, required: true },
-    channelId: { type: String, required: true },
-    message: { type: String, default: '{user} has left the server.' },
-    enabled: { type: Boolean, default: true },
-});
+function getLeaveSettings(guildId) {
+    const db = readDb();
+    if (!db.leave) {
+        db.leave = [];
+    }
+    return db.leave.find(l => l.guildId === guildId);
+}
 
-module.exports = mongoose.model('Leave', LeaveSchema);
+function setLeaveSettings(guildId, settings) {
+    const db = readDb();
+    if (!db.leave) {
+        db.leave = [];
+    }
+    const index = db.leave.findIndex(l => l.guildId === guildId);
+    if (index !== -1) {
+        db.leave[index] = { ...db.leave[index], ...settings };
+    } else {
+        db.leave.push({ guildId, ...settings });
+    }
+    writeDb(db);
+}
+
+module.exports = {
+    getLeaveSettings,
+    setLeaveSettings,
+};

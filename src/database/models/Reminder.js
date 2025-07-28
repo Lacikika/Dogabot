@@ -1,10 +1,33 @@
-const mongoose = require('mongoose');
+const { readDb, writeDb } = require('../database');
 
-const ReminderSchema = new mongoose.Schema({
-    userId: { type: String, required: true },
-    channelId: { type: String, required: true },
-    message: { type: String, required: true },
-    remindAt: { type: Date, required: true },
-});
+function getReminders() {
+    const db = readDb();
+    if (!db.reminders) {
+        db.reminders = [];
+    }
+    return db.reminders;
+}
 
-module.exports = mongoose.model('Reminder', ReminderSchema);
+function addReminder(reminder) {
+    const db = readDb();
+    if (!db.reminders) {
+        db.reminders = [];
+    }
+    db.reminders.push(reminder);
+    writeDb(db);
+}
+
+function removeReminder(userId, message) {
+    const db = readDb();
+    if (!db.reminders) {
+        db.reminders = [];
+    }
+    db.reminders = db.reminders.filter(r => r.userId !== userId || r.message !== message);
+    writeDb(db);
+}
+
+module.exports = {
+    getReminders,
+    addReminder,
+    removeReminder,
+};
