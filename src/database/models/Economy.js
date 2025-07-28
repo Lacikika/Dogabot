@@ -1,10 +1,28 @@
-const mongoose = require('mongoose');
+const { readDb, writeDb } = require('../database');
 
-const EconomySchema = new mongoose.Schema({
-    userId: { type: String, required: true },
-    guildId: { type: String, required: true },
-    balance: { type: Number, default: 0 },
-    lastDaily: { type: Date, default: null },
-});
+function getEconomy(userId, guildId) {
+    const db = readDb();
+    if (!db.economy) {
+        db.economy = [];
+    }
+    return db.economy.find(e => e.userId === userId && e.guildId === guildId);
+}
 
-module.exports = mongoose.model('Economy', EconomySchema);
+function updateEconomy(userId, guildId, data) {
+    const db = readDb();
+    if (!db.economy) {
+        db.economy = [];
+    }
+    const index = db.economy.findIndex(e => e.userId === userId && e.guildId === guildId);
+    if (index !== -1) {
+        db.economy[index] = { ...db.economy[index], ...data };
+    } else {
+        db.economy.push({ userId, guildId, ...data });
+    }
+    writeDb(db);
+}
+
+module.exports = {
+    getEconomy,
+    updateEconomy,
+};

@@ -1,10 +1,33 @@
-const mongoose = require('mongoose');
+const { readDb, writeDb } = require('../database');
 
-const ReactionRoleSchema = new mongoose.Schema({
-    guildId: { type: String, required: true },
-    messageId: { type: String, required: true },
-    emoji: { type: String, required: true },
-    roleId: { type: String, required: true },
-});
+function getReactionRoles(guildId) {
+    const db = readDb();
+    if (!db.reactionRoles) {
+        db.reactionRoles = [];
+    }
+    return db.reactionRoles.filter(rr => rr.guildId === guildId);
+}
 
-module.exports = mongoose.model('ReactionRole', ReactionRoleSchema);
+function addReactionRole(guildId, messageId, emoji, roleId) {
+    const db = readDb();
+    if (!db.reactionRoles) {
+        db.reactionRoles = [];
+    }
+    db.reactionRoles.push({ guildId, messageId, emoji, roleId });
+    writeDb(db);
+}
+
+function removeReactionRole(guildId, messageId, emoji) {
+    const db = readDb();
+    if (!db.reactionRoles) {
+        db.reactionRoles = [];
+    }
+    db.reactionRoles = db.reactionRoles.filter(rr => rr.guildId !== guildId || rr.messageId !== messageId || rr.emoji !== emoji);
+    writeDb(db);
+}
+
+module.exports = {
+    getReactionRoles,
+    addReactionRole,
+    removeReactionRole,
+};

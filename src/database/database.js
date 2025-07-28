@@ -1,19 +1,25 @@
-const mongoose = require('mongoose');
-const dotenv = require('dotenv');
+const fs = require('fs');
+const path = require('path');
 
-dotenv.config();
+const dbPath = path.join(__dirname, 'db.json');
 
-const connectDB = async () => {
+function readDb() {
     try {
-        await mongoose.connect(process.env.MONGO_URI, {
-            useNewUrlParser: true,
-            useUnifiedTopology: true,
-        });
-        console.log('MongoDB connected');
-    } catch (err) {
-        console.error(err.message);
-        process.exit(1);
+        const data = fs.readFileSync(dbPath, 'utf8');
+        return JSON.parse(data);
+    } catch (error) {
+        if (error.code === 'ENOENT') {
+            return {};
+        }
+        throw error;
     }
-};
+}
 
-module.exports = connectDB;
+function writeDb(data) {
+    fs.writeFileSync(dbPath, JSON.stringify(data, null, 2));
+}
+
+module.exports = {
+    readDb,
+    writeDb,
+};

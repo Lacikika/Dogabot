@@ -2,9 +2,9 @@
   "name": "app",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "src/main.js",
   "scripts": {
-    "start": "node index.js",
+    "start": "node src/main.js",
     "deploy": "node deploy-commands.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -28,7 +28,6 @@
     "dotenv": "^17.2.1",
     "ffmpeg-static": "^5.2.0",
     "glob": "^11.0.3",
-    "mongoose": "^8.16.5",
     "ms": "^2.1.3"
   }
 }

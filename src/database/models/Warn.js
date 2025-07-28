@@ -1,11 +1,23 @@
-const mongoose = require('mongoose');
+const { readDb, writeDb } = require('../database');
 
-const WarnSchema = new mongoose.Schema({
-    userId: { type: String, required: true },
-    guildId: { type: String, required: true },
-    moderatorId: { type: String, required: true },
-    reason: { type: String, required: true },
-    timestamp: { type: Date, default: Date.now },
-});
+function getWarns(userId, guildId) {
+    const db = readDb();
+    if (!db.warns) {
+        db.warns = [];
+    }
+    return db.warns.filter(w => w.userId === userId && w.guildId === guildId);
+}
 
-module.exports = mongoose.model('Warn', WarnSchema);
+function addWarn(warn) {
+    const db = readDb();
+    if (!db.warns) {
+        db.warns = [];
+    }
+    db.warns.push(warn);
+    writeDb(db);
+}
+
+module.exports = {
+    getWarns,
+    addWarn,
+};
